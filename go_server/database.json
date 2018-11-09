@@ -1,0 +1,22 @@
+{
+  "mysql":{
+    "user":"nikimet",
+    "host":"localhost",
+    "port":"3306",
+    "password":"123654",
+    "db":"moonshard"
+  },
+  "redis":{
+    "user":"nikimet",
+    "host":"localhost",
+    "port":"6379",
+    "password":""
+  },
+  "mongo":{
+    "user":"nikimet",
+    "host":"localhost",
+    "port":"27017",
+    "password":"",
+    "db":"moonshard"
+  }
+}
