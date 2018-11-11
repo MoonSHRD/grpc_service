@@ -1,12 +1,10 @@
 package main
 
 import (
-    "encoding/base64"
     "encoding/hex"
     "encoding/json"
     "errors"
-    "golang.org/x/crypto/ed25519"
-    "golang.org/x/crypto/ripemd160"
+    "github.com/ethereum/go-ethereum/crypto"
     "gopkg.in/mgo.v2/bson"
     "log"
     "mnshrd_service/go_server/dbs"
@@ -33,7 +31,7 @@ func getNow() int {
 
 func (s *server) Ping(ctx context.Context, in *pb.PingSetter) (*pb.Success, error) {
     log.Println(in.PubKey)
-    pub,_:=DecodePub(in.PubKey)
+    pub,_:= DecodeHex(in.PubKey)
     addr:=AddrFromPub(pub)
     log.Println("got ping from: "+addr)
     dbs.GetMongo().Instance.C("users").Update(bson.M{"_id":addr},bson.M{"$set":bson.M{"last_active":getNow()}})
@@ -47,7 +45,7 @@ func (s *server) GetLatestVersion(ctx context.Context, in *pb.Null) (*pb.LatestV
 }
 
 func (s *server) SetObjData(ctx context.Context, in *pb.ObjSetter) (*pb.Success, error) {
-    pub,_:=DecodePub(in.PubKey)
+    pub,_:= DecodeHex(in.PubKey)
     valid,_:=CheckSign(pub,in.Data,in.Sign)
     if !valid {
         return nil,errors.New("wrong signature")
@@ -167,30 +165,37 @@ func (s *server) GetObjsData(ctx context.Context, in *pb.ObjsGetter) (*pb.ObjDat
 }
 
 func AddrFromPub(pub []byte) string {
-    hasher := ripemd160.New()
-    hasher.Write(pub)
-    hashBytes := hasher.Sum(nil)
-    address := "0x" + hex.EncodeToString(hashBytes)
-    return strings.ToLower(address)
+    pubE,_:=crypto.UnmarshalPubkey(pub)
+    addr:=crypto.PubkeyToAddress(*pubE)
+    //addr.Hex()
+    //hasher := ripemd160.New()
+    //hasher.Write(pub)
+    //hashBytes := hasher.Sum(nil)
+    //address := "0x" + hex.EncodeToString(hashBytes)
+    return strings.ToLower(addr.Hex())
 }
 
-func DecodePub(pub string) ([]byte,error) {
-    pubKey, err := hex.DecodeString(pub[2:])
+func DecodeHex(hexStr string) ([]byte,error) {
+    decoded, err := hex.DecodeString(hexStr[2:])
     if err != nil {
-        log.Println("Decode pub err: ",err)
+        log.Println("Decode hexStr err: ",err)
         return nil, err
     } else {
-        return pubKey,nil
+        return decoded,nil
     }
 }
 
-func CheckSign(pub []byte,data,sigB64 string) (bool,error) {
-    sig, err := base64.StdEncoding.DecodeString(sigB64)
-    if err != nil {
-        log.Println("Decode sig err: ",err)
-        return false, err
-    }
-    return ed25519.Verify(pub, []byte(data), sig),nil
+func CheckSign(pub []byte,data,sig string) (bool,error) {
+    //sig, err := base64.StdEncoding.DecodeString(sigB64)
+    //if err != nil {
+    //    log.Println("Decode sig err: ",err)
+    //    return false, err
+    //}
+    //dataB:=[]byte(data)
+    //sigB,_:=DecodeHex(sig)
+    //crypto.VerifySignature(pub,dataB,sigB)
+    return true,nil
+    //return crypto.VerifySignature(pub,dataB,sigB),nil
 }
 
 func main() {

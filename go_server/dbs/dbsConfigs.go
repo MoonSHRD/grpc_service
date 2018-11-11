@@ -30,7 +30,7 @@ func getConfig(db string) configData {
     byteValue, _ := ioutil.ReadAll(jsonFile)
     var conf dbConfigs
     json.Unmarshal(byteValue, &conf)
-    var ret configData;
+    var ret configData
     switch db {
     case "Mongo":
         ret = conf.MongoConfig
