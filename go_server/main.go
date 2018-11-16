@@ -45,6 +45,7 @@ func (s *server) GetLatestVersion(ctx context.Context, in *pb.Null) (*pb.LatestV
 }
 
 func (s *server) SetObjData(ctx context.Context, in *pb.ObjSetter) (*pb.Success, error) {
+    log.Println(in)
     pub,_:= DecodeHex(in.PubKey)
     valid,_:=CheckSign(pub,in.Data,in.Sign)
     if !valid {
@@ -188,13 +189,32 @@ func DecodeHex(hexStr string) ([]byte,error) {
 func CheckSign(pub []byte,data,sig string) (bool,error) {
     //sig, err := base64.StdEncoding.DecodeString(sigB64)
     //if err != nil {
-    //    log.Println("Decode sig err: ",err)
-    //    return false, err
+    //   log.Println("Decode sig err: ",err)
+    //   return false, err
     //}
+    //log.Println(strings.Replace(data,"\\","",-1))
+    //dataB:=crypto.Keccak256(append(append([]byte("\x19Ethereum Signed Message:\n"),[]byte(strconv.Itoa(len(data)))...),[]byte(data)...))
+    //dataB:=crypto.Keccak256([]byte(strings.Replace(data,"\\","",-1)))
+    dataB:=crypto.Keccak256([]byte(data))
+    //dataB:=[]byte(strings.Replace(data,"\\","",-1))
     //dataB:=[]byte(data)
-    //sigB,_:=DecodeHex(sig)
-    //crypto.VerifySignature(pub,dataB,sigB)
-    return true,nil
+    //dataB:=[]byte(data)
+    sigB,err:=DecodeHex(sig)
+    if err!=nil{
+        log.Println("error decoding sig",err)
+    }
+    //rec,err:=crypto.Ecrecover(dataB,sigB)
+    //if err!=nil{
+    //    log.Println("error rec",err)
+    //}
+    //log.Println(rec,pub)
+    //publ,err:=crypto.SigToPub(dataB,sigB)
+    //if err!=nil{
+    //    log.Println("error conv",err)
+    //}
+    //log.Println(publ,pub)
+    suc:=crypto.VerifySignature(pub,dataB,sigB)
+    return suc,nil
     //return crypto.VerifySignature(pub,dataB,sigB),nil
 }
 

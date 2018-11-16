@@ -4,6 +4,9 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.1.0",
     "async": "^1.5.2",
+    "bip39": "^2.5.0",
+    "ethereumjs-wallet": "^0.6.2",
+    "ethers": "^4.0.10",
     "google-protobuf": "^3.0.0",
     "grpc": "^1.11.0",
     "lodash": "^4.6.1",
@@ -12,6 +15,6 @@
     "tweetnacl": "^1.0.0"
   },
   "scripts": {
-    "generate_proto": "protoc -I proto/ proto/moonshard.proto --go_out=plugins=grpc:proto; sed -i -e 's_golang.org\/x\/net\/context_context_g' proto/moonshard.pb.go"
+    "generate_proto": "protoc -I proto/ proto/moonshard.proto --go_out=plugins=grpc:proto; sed -i -e 's_golang.org/x/net/context_context_g' proto/moonshard.pb.go"
   }
 }
