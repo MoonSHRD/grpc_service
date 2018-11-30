@@ -1,27 +1,28 @@
 package main
 
 import (
-	"encoding/hex"
-	"encoding/json"
-	"errors"
-	"github.com/ethereum/go-ethereum/crypto"
-	"gopkg.in/mgo.v2/bson"
-	"grpc_service/go_server/dbs"
-	"grpc_service/go_server/models"
-	"log"
-	"net"
-	"strings"
-	"time"
-
-	"context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	pb "grpc_service/proto"
+    "encoding/hex"
+    "encoding/json"
+    "errors"
+    "flag"
+    "github.com/ethereum/go-ethereum/crypto"
+    "gopkg.in/mgo.v2/bson"
+    "grpc_service/go_server/dbs"
+    "grpc_service/go_server/models"
+    "log"
+    "net"
+    "strings"
+    "time"
+    
+    "context"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/reflection"
+    pb "grpc_service/proto"
 )
 
-const (
-	port = "50051"
-)
+//const (
+//	port = "50051"
+//)
 
 type server struct{}
 
@@ -199,14 +200,18 @@ func CheckSign(pub []byte, data, sig string) (bool, error) {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":"+port)
+    port := flag.String("p", "50051", "service port")
+    host := flag.String("h", "localhost", "service host")
+    flag.Parse()
+    
+	lis, err := net.Listen("tcp", *host+":"+*port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 	pb.RegisterMoonshardServer(s, &server{})
 	reflection.Register(s)
-	log.Println("Server starting at: " + port + " port")
+	log.Println("Server starting at: " + *host+":"+*port)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
